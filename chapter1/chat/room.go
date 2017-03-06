@@ -1,4 +1,4 @@
-package main
+﻿package main
 
 import (
 	"log"
@@ -10,26 +10,24 @@ import (
 
 type room struct {
 
-	// forward is a channel that holds incoming messages
-	// that should be forwarded to the other clients.
+	// forward는 수신 메시지를 보관하는 채널이며
+	// (수신한 메시지는) 다른 클라이언트로 전달돼야 한다.
 	forward chan []byte
 
-	// join is a channel for clients wishing to join the room.
+	// join은 채팅방에 들어오려는 클라이언트를 위한 채널이다.
 	join chan *client
 
-	// leave is a channel for clients wishing to leave the room.
+	// leave는 채팅방을 나가기를 원하는 클라이언트를 위한 채널이다.
 	leave chan *client
 
-	// clients holds all current clients in this room.
+	// clients는 현재 채팅방에 있는 모든 클라이언트를 가진다.
 	clients map[*client]bool
 
-	// tracer will receive trace information of activity
-	// in the room.
+	// tracer는 채팅방 안에서 활동의 추적 정보를 수신한다.
 	tracer trace.Tracer
 }
 
-// newRoom makes a new room that is ready to
-// go.
+// newRoom은 새로운 방을 만든다.
 func newRoom() *room {
 	return &room{
 		forward: make(chan []byte),
@@ -44,17 +42,17 @@ func (r *room) run() {
 	for {
 		select {
 		case client := <-r.join:
-			// joining
+			// 입장
 			r.clients[client] = true
 			r.tracer.Trace("New client joined")
 		case client := <-r.leave:
-			// leaving
+			// 퇴장
 			delete(r.clients, client)
 			close(client.send)
 			r.tracer.Trace("Client left")
 		case msg := <-r.forward:
 			r.tracer.Trace("Message received: ", string(msg))
-			// forward message to all clients
+			// 모든 클라이언트에게 메시지 전달
 			for client := range r.clients {
 				client.send <- msg
 				r.tracer.Trace(" -- sent to client")

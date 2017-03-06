@@ -1,4 +1,4 @@
-package main
+﻿package main
 
 import (
 	"flag"
@@ -12,14 +12,14 @@ import (
 	"github.com/matryer/goblueprints/chapter1/trace"
 )
 
-// templ represents a single template
+// templ은 하나의 템플릿을 나타냄
 type templateHandler struct {
 	once     sync.Once
 	filename string
 	templ    *template.Template
 }
 
-// ServeHTTP handles the HTTP request.
+// ServeHTTP가 HTTP 요청을 처리한다.
 func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.once.Do(func() {
 		t.templ = template.Must(template.ParseFiles(filepath.Join("templates", t.filename)))
@@ -28,8 +28,8 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var addr = flag.String("addr", ":8080", "The addr of the application.")
-	flag.Parse() // parse the flags
+	var addr = flag.String("addr", ":8080", "애플리케이션의 주소이다."")
+	flag.Parse() // 플래그 파싱
 
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
@@ -37,11 +37,11 @@ func main() {
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 
-	// get the room going
+	// room을 가져옴
 	go r.run()
 
-	// start the web server
-	log.Println("Starting web server on", *addr)
+	// 웹 서버 시작
+	log.Println("다음 주소에서 웹 서버 시작", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
